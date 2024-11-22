@@ -9,10 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,18 +19,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import it.unibz.engineeringofmobilesystems.musicapplication.ui.theme.MusicApplicationTheme
+import androidx.compose.material3.Text
 
 class MainActivity : ComponentActivity() {
 
-    private var mediaPlayer: MediaPlayer? = null // Nullable to allow releasing it
+    private var mediaPlayer: MediaPlayer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         // Initialize MediaPlayer with the first song
-        val firstSongResId = R.raw.audio // Replace with the actual resource ID of the first song
-        mediaPlayer = MediaPlayer.create(this, firstSongResId)
+        val songs = listOf(
+            R.raw.audio1, // First song resource ID
+            R.raw.audio2, // Second song resource ID
+            R.raw.audio3  // Third song resource ID
+        )
+        initializeMediaPlayer(songs[0]) // Initialize MediaPlayer with the first song
 
         setContent {
             MusicApplicationTheme {
@@ -41,12 +43,17 @@ class MainActivity : ComponentActivity() {
                     MusicPlayerUI(
                         onPlay = { playMusic() },
                         onPause = { pauseMusic() },
-                        onSwitchSong = { songResId -> switchSong(songResId) },
+                        onSwitchSong = { songIndex -> switchSong(songIndex) },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
         }
+    }
+
+    private fun initializeMediaPlayer(songResId: Int) {
+        mediaPlayer?.release() // Release any previous MediaPlayer instance
+        mediaPlayer = MediaPlayer.create(this, songResId)
     }
 
     private fun playMusic() {
@@ -57,10 +64,16 @@ class MainActivity : ComponentActivity() {
         mediaPlayer?.pause()
     }
 
-    private fun switchSong(songResId: Int) {
-        mediaPlayer?.release() // Release the current MediaPlayer
-        mediaPlayer = MediaPlayer.create(this, songResId) // Initialize with the new song
-        mediaPlayer?.start() // Start playing the new song
+    private fun switchSong(songIndex: Int) {
+        val songs = listOf(
+            R.raw.audio1, // First song resource ID
+            R.raw.audio2, // Second song resource ID
+            R.raw.audio3  // Third song resource ID
+        )
+        if (songIndex in songs.indices) {
+            initializeMediaPlayer(songs[songIndex]) // Load the selected song into MediaPlayer
+            playMusic() // Start playing the new song
+        }
     }
 
     override fun onDestroy() {
@@ -68,6 +81,14 @@ class MainActivity : ComponentActivity() {
         mediaPlayer?.release() // Release MediaPlayer resources
     }
 }
+
+// This is a data class used to collect everything
+data class Collection<A, B, C, D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D
+)
 
 @Composable
 fun MusicPlayerUI(
@@ -81,9 +102,9 @@ fun MusicPlayerUI(
 
     // List of songs (album image, title, artist, song resource)
     val songs = listOf(
-        Quadruple(R.drawable.album_song, "Trendeline", "Artist: Mc Kresha", R.raw.audio),
-        Quadruple(R.drawable.album_song1, "Song 2", "Artist: Dua Lipa", R.raw.audio),
-        Quadruple(R.drawable.album_song2, "Song 3", "Artist: Calvin Harris", R.raw.audio)
+        Collection(R.drawable.album_song, "Trendeline", "Artist: Mc Kresha", R.raw.audio1),
+        Collection(R.drawable.album_song1, "Song 2", "Artist: Dua Lipa", R.raw.audio2),
+        Collection(R.drawable.album_song2, "Song 3", "Artist: Calvin Harris", R.raw.audio3)
     )
 
     // Get the current song based on the index
@@ -140,7 +161,7 @@ fun MusicPlayerUI(
                         } else {
                             songs.lastIndex
                         }
-                        onSwitchSong(currentSong.fourth)
+                        onSwitchSong(currentSongIndex) // Sync MediaPlayer with the new index
                     }
             )
 
@@ -165,20 +186,12 @@ fun MusicPlayerUI(
                         } else {
                             0
                         }
-                        onSwitchSong(currentSong.fourth)
+                        onSwitchSong(currentSongIndex) // Sync MediaPlayer with the new index
                     }
             )
         }
     }
 }
-
-// Helper data class for song details
-data class Quadruple<A, B, C, D>(
-    val first: A,
-    val second: B,
-    val third: C,
-    val fourth: D
-)
 
 @Preview(showBackground = true)
 @Composable
