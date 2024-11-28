@@ -15,44 +15,34 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.unibz.engineeringofmobilesystems.musicapplication.ui.theme.MusicApplicationTheme
-import androidx.compose.material3.Text
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import it.unibz.engineeringofmobilesystems.musicapplication.model.Affirmation
-
-
-
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
 
 class MainActivity : ComponentActivity() {
 
-     private var mediaPlayer: MediaPlayer? = null // Commented out MediaPlayer initialization
+    // Media player variable declaration
+    private var mediaPlayer: MediaPlayer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // List of songs
-        val songs = listOf(
-            R.raw.audio1, // First song resource ID
-            R.raw.audio2, // Second song resource ID
-            R.raw.audio3  // Third song resource ID
-        )
-         initializeMediaPlayer(songs[0]) // Commented out initialization for the first song
-
         setContent {
             MusicApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MusicPlayerUI(
-                        onPlay = {  playMusic()  }, // Commented out play functionality
-                        onPause = {  pauseMusic()  }, // Commented out pause functionality
-                        onSwitchSong = { songIndex ->  switchSong(songIndex)  }, // Commented out song switching
+                        onPlay = { playMusic() },
+                        onPause = { pauseMusic() },
+                        onSwitchSong = { songIndex -> switchSong(songIndex) },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -60,34 +50,34 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-     private fun initializeMediaPlayer(songResId: Int) {
-         mediaPlayer?.release() // Release any previous MediaPlayer instance
-         mediaPlayer = MediaPlayer.create(this, songResId)
-     }
+    private fun initializeMediaPlayer(songResId: Int) {
+        mediaPlayer?.release() // Release any previous MediaPlayer instance
+        mediaPlayer = MediaPlayer.create(this, songResId)
+    }
 
-     private fun playMusic() {
-         mediaPlayer?.start()
-     }
+    private fun playMusic() {
+        mediaPlayer?.start()
+    }
 
-     private fun pauseMusic() {
-         mediaPlayer?.pause()
-     }
+    private fun pauseMusic() {
+        mediaPlayer?.pause()
+    }
 
-     private fun switchSong(songIndex: Int) {
-         val songs = listOf(
-             R.raw.audio1, // First song resource ID
-             R.raw.audio2, // Second song resource ID
-             R.raw.audio3  // Third song resource ID
-         )
-         if (songIndex in songs.indices) {
-             initializeMediaPlayer(songs[songIndex]) // Load the selected song into MediaPlayer
-             playMusic() // Start playing the new song
-         }
-     }
+    private fun switchSong(songIndex: Int) {
+        val songs = listOf(
+            R.raw.audio1, // First song resource ID
+            R.raw.audio2, // Second song resource ID
+            R.raw.audio3  // Third song resource ID
+        )
+        if (songIndex in songs.indices) {
+            initializeMediaPlayer(songs[songIndex]) // Load the selected song into MediaPlayer
+            playMusic() // Start playing the new song
+        }
+    }
 
     override fun onDestroy() {
         super.onDestroy()
-         mediaPlayer?.release()
+        mediaPlayer?.release()
     }
 }
 
@@ -106,37 +96,32 @@ fun MusicPlayerUI(
             Color(0xFF1F241F)  // Slightly darker shade
         )
     )
-    // State for the current song index
+
     var currentSongIndex by remember { mutableStateOf(0) }
 
-    // List of songs (album image, title, artist, song resource)
     val songs = listOf(
         SongClass(R.drawable.album_song, "Trendeline", "Artist: Chicho", R.raw.audio1),
         SongClass(R.drawable.album_song1, "Kriminal", "Artist: Mc Kresha", R.raw.audio2),
         SongClass(R.drawable.album_song2, "Semafori", "Artist: Lyrical Son", R.raw.audio3)
     )
 
-    // Get the current song based on the index
     val currentSong = songs[currentSongIndex]
 
-    // Scroll state for the Column
-    val scrollState = rememberScrollState()
-
+    // Single Column for the entire layout
     Column(
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
             .background(customGradient)
-            .padding(50.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp)
     ) {
-        // Top Section: Album Art
+        // Album Art
         Image(
             painter = painterResource(id = currentSong.albumArtResourceId),
             contentDescription = "Album Art",
             modifier = Modifier
                 .size(300.dp)
                 .border(16.dp, Color.Black)
+                .align(Alignment.CenterHorizontally) // Center the image horizontally
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -144,8 +129,7 @@ fun MusicPlayerUI(
         // Playback Buttons
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -188,21 +172,29 @@ fun MusicPlayerUI(
 
         Spacer(modifier = Modifier.height(25.dp))
 
-        // List of Affirmations
-        affirmations.forEach { affirmation ->
-            AlbumItem(affirmation)
+        // LazyColumn with scrolling
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f) // Ensure LazyColumn takes up the remaining space
+        ) {
+            items(affirmations) { affirmation ->
+                AlbumItem(affirmation)
+            }
         }
     }
 }
 
 @Composable
 fun AlbumItem(affirmation: Affirmation) {
+    // The album items are represented as rows
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .background(Color.Black)
     ) {
+        // There will be a image that is declared at affirmation
         Image(
             painter = painterResource(id = affirmation.imageResourceId),
             contentDescription = null,
@@ -210,6 +202,7 @@ fun AlbumItem(affirmation: Affirmation) {
                 .size(64.dp)
                 .padding(8.dp)
         )
+        // The text will be shown after image which is declared at affirmation
         Text(
             text = stringResource(id = affirmation.stringResourceId),
             color = Color.White,
@@ -220,7 +213,6 @@ fun AlbumItem(affirmation: Affirmation) {
         )
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
