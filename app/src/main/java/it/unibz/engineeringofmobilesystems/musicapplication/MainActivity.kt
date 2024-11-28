@@ -50,19 +50,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // This function initializes the MediaPlayer object, songResId specifies the audio resource
     private fun initializeMediaPlayer(songResId: Int) {
         mediaPlayer?.release() // Release any previous MediaPlayer instance
         mediaPlayer = MediaPlayer.create(this, songResId)
     }
 
+    // This function starts playing the current audio track.
     private fun playMusic() {
         mediaPlayer?.start()
     }
 
+    // This function pauses the currently playing audio.
     private fun pauseMusic() {
         mediaPlayer?.pause()
     }
 
+    // This function switches to a specific song based on the given index.
     private fun switchSong(songIndex: Int) {
         val songs = listOf(
             R.raw.audio1, // First song resource ID
@@ -74,13 +78,13 @@ class MainActivity : ComponentActivity() {
             playMusic() // Start playing the new song
         }
     }
-
+    // This is a lifecycle method that is automatically called when the activity is destroyed.
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer?.release()
     }
 }
-
+// The MusicPlayerUI is a composable that defines the main user interface (UI) of the app
 @Composable
 fun MusicPlayerUI(
     onPlay: () -> Unit,
@@ -88,21 +92,30 @@ fun MusicPlayerUI(
     onSwitchSong: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // This line creates an instance of the Datasource class.
     val datasource = Datasource()
+    // This line calls the loadAffirmations function on the Datasource instance
     val affirmations = datasource.loadAffirmations()
+    // This is the background color of the app declared in the column
     val customGradient = Brush.verticalGradient(
         colors = listOf(
             Color(0xFF3A403D), // Dark greenish-gray
             Color(0xFF1F241F)  // Slightly darker shade
         )
     )
-
+    // The currentSongIndex variable is mutable state that keeps track of the index of the song.
     var currentSongIndex by remember { mutableStateOf(0) }
 
+    // This is a list of the SongClass that represents all the data used in my app
     val songs = listOf(
         SongClass(R.drawable.album_song, "Trendeline", "Artist: Chicho", R.raw.audio1),
         SongClass(R.drawable.album_song1, "Kriminal", "Artist: Mc Kresha", R.raw.audio2),
-        SongClass(R.drawable.album_song2, "Semafori", "Artist: Lyrical Son", R.raw.audio3)
+        SongClass(R.drawable.album_song2, "Semafori", "Artist: Lyrical Son", R.raw.audio3),
+        SongClass(R.drawable.album_song3, "Kuq e Zi", "Artist: Lyrical Son", R.raw.audio3),
+        SongClass(R.drawable.album_song4, "JBMTQR", "Artist: Lyrical Son", R.raw.audio3),
+        SongClass(R.drawable.album_song5, "Era", "Artist: Lyrical Son", R.raw.audio3),
+        SongClass(R.drawable.album_song6, "Sje Mo", "Artist: Mc Kresha", R.raw.audio3)
+
     )
 
     val currentSong = songs[currentSongIndex]
@@ -112,9 +125,9 @@ fun MusicPlayerUI(
         modifier = modifier
             .fillMaxSize()
             .background(customGradient)
-            .padding(16.dp)
+            .padding(25.dp)
     ) {
-        // Album Art
+        // Album Art at the top of the UI
         Image(
             painter = painterResource(id = currentSong.albumArtResourceId),
             contentDescription = "Album Art",
@@ -123,10 +136,10 @@ fun MusicPlayerUI(
                 .border(16.dp, Color.Black)
                 .align(Alignment.CenterHorizontally) // Center the image horizontally
         )
+        // The spacer is used to make empty space in our layout
+        Spacer(modifier = Modifier.height(70.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Playback Buttons
+        // Here is the row declaration for icons
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -169,14 +182,14 @@ fun MusicPlayerUI(
                     }
             )
         }
+        // The spacer is used to make empty space in our layout
+        Spacer(modifier = Modifier.height(55.dp))
 
-        Spacer(modifier = Modifier.height(25.dp))
-
-        // LazyColumn with scrolling
+        // LazyColumn declaration
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f) // Ensure LazyColumn takes up the remaining space
+                .weight(1f) // This ensures that lazy column takes the remaining space
         ) {
             items(affirmations) { affirmation ->
                 AlbumItem(affirmation)
@@ -213,7 +226,7 @@ fun AlbumItem(affirmation: Affirmation) {
         )
     }
 }
-
+// It provides a real-time preview of the MusicPlayerUI
 @Preview(showBackground = true)
 @Composable
 fun MusicPlayerPreview() {

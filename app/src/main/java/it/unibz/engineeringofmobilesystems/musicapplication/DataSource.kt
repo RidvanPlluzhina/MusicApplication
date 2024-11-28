@@ -8,10 +8,10 @@ class Datasource {
             Affirmation(R.string.affirmation1, R.drawable.album_song),
             Affirmation(R.string.affirmation2, R.drawable.album_song1),
             Affirmation(R.string.affirmation3, R.drawable.album_song2),
-            Affirmation(R.string.affirmation3, R.drawable.album_song),
-            Affirmation(R.string.affirmation3, R.drawable.album_song2),
-            Affirmation(R.string.affirmation3, R.drawable.album_song),
-            Affirmation(R.string.affirmation3, R.drawable.album_song1)
+            Affirmation(R.string.affirmation4, R.drawable.album_song3),
+            Affirmation(R.string.affirmation5, R.drawable.album_song4),
+            Affirmation(R.string.affirmation6, R.drawable.album_song5),
+            Affirmation(R.string.affirmation7, R.drawable.album_song6)
 
         )
     }
