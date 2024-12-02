@@ -1,6 +1,6 @@
 package it.unibz.engineeringofmobilesystems.musicapplication
 
-import android.app.Application
+//import android.app.Application
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,11 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+//import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+//import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import it.unibz.engineeringofmobilesystems.musicapplication.model.Affirmation
 import it.unibz.engineeringofmobilesystems.musicapplication.ui.theme.MusicApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -59,11 +58,6 @@ fun MusicPlayerUI(
     val currentSong by viewModel.currentSong.collectAsState()
     val currentSongIndex by viewModel.currentSongIndex.collectAsState()
     val songs = viewModel.songs
-
-    // This line creates an instance of the Datasource class.
-    val datasource = Datasource()
-    // This line calls the loadAffirmations function on the Datasource instance
-    val affirmations = datasource.loadAffirmations()
 
     // This is the background color of the app declared in the column
     val customGradient = Brush.verticalGradient(
@@ -118,7 +112,8 @@ fun MusicPlayerUI(
                 contentDescription = "Play",
                 modifier = Modifier
                     .size(64.dp)
-//                    .clickable { viewModel.playMusic() }
+                // Uncomment if using playMusic functionality
+//                 .clickable { viewModel.playMusic() }
             )
             Image(
                 painter = painterResource(id = R.drawable.next),
@@ -145,7 +140,7 @@ fun MusicPlayerUI(
                 .weight(1f) // This ensures that lazy column takes the remaining space
         ) {
             itemsIndexed(songs) { index, song ->
-                AlbumItem(affirmation = affirmations[index]) {
+                SongItem(song = song) {
                     // Play the selected song when the item is clicked
                     viewModel.switchSong(index)
                 }
@@ -153,8 +148,9 @@ fun MusicPlayerUI(
         }
     }
 }
+
 @Composable
-fun AlbumItem(affirmation: Affirmation, onClick: () -> Unit) {
+fun SongItem(song: SongClass, onClick: () -> Unit) {
     // The album items are represented as rows
     Row(
         modifier = Modifier
@@ -163,32 +159,40 @@ fun AlbumItem(affirmation: Affirmation, onClick: () -> Unit) {
             .background(Color.Black)
             .clickable { onClick() }
     ) {
-        // There will be an image that is declared at affirmation
+        // Display the album art, title, and artist
         Image(
-            painter = painterResource(id = affirmation.imageResourceId),
+            painter = painterResource(id = song.albumArtResourceId),
             contentDescription = null,
             modifier = Modifier
                 .size(64.dp)
                 .padding(8.dp)
         )
-        // The text will be shown after image which is declared at affirmation
-        Text(
-            text = stringResource(id = affirmation.stringResourceId),
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
+        // The text will be shown after the image which is declared in SongClass
+        Column(
             modifier = Modifier
                 .padding(start = 8.dp)
                 .align(Alignment.CenterVertically)
-        )
+        ) {
+            Text(
+                text = song.title,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = song.artist,
+                color = Color.White
+            )
+        }
     }
 }
-@Preview(showBackground = true)
-@Composable
-fun MusicPlayerPreview() {
-    val mockViewModel = MusicViewModel(Application())
-    MusicApplicationTheme {
-        MusicPlayerUI(
-            viewModel = mockViewModel
-        )
-    }
-}
+
+//@Preview(showBackground = true)
+//@Composable
+//fun MusicPlayerPreview() {
+//    val mockViewModel = MusicViewModel(Application())
+//    MusicApplicationTheme {
+//        MusicPlayerUI(
+//            viewModel = mockViewModel
+//        )
+//    }
+//}

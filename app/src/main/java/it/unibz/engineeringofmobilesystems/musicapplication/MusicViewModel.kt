@@ -26,7 +26,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     val currentSong: StateFlow<SongClass> = _currentSong
 
 //    private var mediaPlayer: MediaPlayer? = null
-
+//
 //    fun playMusic() {
 //        mediaPlayer?.start()
 //    }
