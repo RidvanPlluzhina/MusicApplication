@@ -25,6 +25,7 @@ import it.unibz.engineeringofmobilesystems.musicapplication.ui.theme.MusicApplic
 import it.unibz.engineeringofmobilesystems.musicapplication.model.Affirmation
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 
 class MainActivity : ComponentActivity() {
@@ -104,7 +105,7 @@ fun MusicPlayerUI(
         )
     )
     // The currentSongIndex variable is mutable state that keeps track of the index of the song.
-    var currentSongIndex by remember { mutableStateOf(0) }
+    var currentSongIndex by remember { mutableIntStateOf(0) }
 
     // This is a list of the SongClass that represents all the data used in my app
     val songs = listOf(
@@ -191,41 +192,46 @@ fun MusicPlayerUI(
                 .fillMaxWidth()
                 .weight(1f) // This ensures that lazy column takes the remaining space
         ) {
-            items(affirmations) { affirmation ->
-                AlbumItem(affirmation)
+            itemsIndexed(songs) { index, song ->
+                AlbumItem(affirmation = affirmations[index]) {
+                    // Play the selected song when the item is clicked
+                    currentSongIndex = index
+                    onSwitchSong(currentSongIndex)
+                }
             }
         }
     }
-}
-
-@Composable
-fun AlbumItem(affirmation: Affirmation) {
-    // The album items are represented as rows
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .background(Color.Black)
-    ) {
-        // There will be a image that is declared at affirmation
-        Image(
-            painter = painterResource(id = affirmation.imageResourceId),
-            contentDescription = null,
-            modifier = Modifier
-                .size(64.dp)
-                .padding(8.dp)
-        )
-        // The text will be shown after image which is declared at affirmation
-        Text(
-            text = stringResource(id = affirmation.stringResourceId),
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .align(Alignment.CenterVertically)
-        )
     }
-}
+
+    @Composable
+    fun AlbumItem(affirmation: Affirmation, onClick: () -> Unit) {
+        // The album items are represented as rows
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .background(Color.Black)
+                .clickable { onClick() }
+        ) {
+            // There will be a image that is declared at affirmation
+            Image(
+                painter = painterResource(id = affirmation.imageResourceId),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(64.dp)
+                    .padding(8.dp)
+            )
+            // The text will be shown after image which is declared at affirmation
+            Text(
+                text = stringResource(id = affirmation.stringResourceId),
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .align(Alignment.CenterVertically)
+            )
+        }
+    }
 // It provides a real-time preview of the MusicPlayerUI
 @Preview(showBackground = true)
 @Composable
